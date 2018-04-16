@@ -1,5 +1,5 @@
 {
-    "name": "vendor/chj-tree",
+    "name": "chj/tree",
     "description": "tree data 使用递归生成树形数据，简单实用",
    "keywords": [
     "tree",
