@@ -3,7 +3,7 @@
  +------------------------------------------------------------------------------
  * Tree 构建tree状数据
  +------------------------------------------------------------------------------
- * @version   v1.1
+ * @version   v1.4
  +------------------------------------------------------------------------------
  */
  namespace chj\tree;
@@ -55,6 +55,8 @@ class Tree
             if(!empty($child))
             {
                 $v[self::$child] = $child;
+            }else{
+                $v[self::$child] = [];
             }
         }
         unset($v);
@@ -64,17 +66,64 @@ class Tree
      * 查找子类
      * @param array $data
      * @param number $index
+     * @param bool $all
      * @return array
      */
-    public static function findChild(&$data, $index)
+    public static function findChild(&$data, $index,$all = false)
     {
         $childs = [];
 		foreach ($data as $k => $v){
 			if($v[self::$parentId] == $index){
-				$childs[]  = $v;
-                unset($v);
+				if ($all)
+                {
+                    $tmp = $v;
+                    $tmp['child'] = self::findChild($data,$v[self::$primary],$all);
+                    $childs[] = $tmp;
+                }else{
+                    $childs[]  = $v;
+                }
 			}
 		}
 		return $childs;
+    }
+
+    /**
+     * 查找父类
+     * @param $data
+     * @param $index
+     * @param bool $all
+     * @return array|mixed
+     */
+    public static function findParent($data,$index,$all=false)
+    {
+        $parents = [];
+        foreach ($data as $k=>$v)
+        {
+            if ($v[self::$primary] == $index)
+            {
+                $tmp = $v;
+                if ($all)
+                {
+                    if ($v[self::$primary] != 0)
+                    {
+                        $tmp['parent'] = self::findParent($data,$v[self::$parentId],$all);
+                        $parents = $tmp;
+                    }
+                }else{
+                    if ($v[self::$primary] != 0)
+                    {
+                        foreach ($data as $key=>$value)
+                        {
+                            if ($value[self::$primary] == $v[self::$parentId])
+                            {
+                                $tmp['parent'] = $value;
+                                return  $tmp;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $parents;
     }
 }
